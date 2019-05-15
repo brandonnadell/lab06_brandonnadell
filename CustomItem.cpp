@@ -1,40 +1,43 @@
 #include <map>
+#include <iomanip>
+#include <sstream>
 #include "CustomItem.h"
-#include "IceCreamItem.h"
 
 CustomItem::CustomItem(std::string size) : IceCreamItem(size) {
 	toppings = new std::map<std::string, int>;
+	price = size == "small" ? 3 : size == "medium" ? 5 : size == "large" ? 6.5 : 0;
 }
 
-~CustomItem::CustomItem() {
+CustomItem::~CustomItem() {
 	delete toppings;
 }
 
 void CustomItem::addTopping(std::string topping) {
-	map<std::string, int>::iterator i = toppings->find(topping);
+	std::map<std::string, int>::iterator i = toppings->find(topping);
 	if (i != toppings->end()) {
 		i->second++;
 	} else {
-		toppings->insert(new std::Pair(topping, 1));
+		toppings->insert(std::pair<std::string, int>(topping, 1));
 	}
-	changePrice(.4);
+	price += .4;
 }
 
 std::string CustomItem::composeItem() {
 	std::string result = "Custom Size: " + size;
-	result += "\nToppings:";
-	for (map<std::string, int> i = toppings->begin(); i != toppings->end(); i++) {
-		result += i->first;
-		result += ": ";
-		result += i->second;
-		result += " oz\n";
+	result += "\nToppings:\n";
+	std::stringstream stream;
+	for (std::map<std::string, int>::iterator i = toppings->begin(); i != toppings->end(); i++) {
+		stream << i->first;
+		stream << ": ";
+		stream << i->second;
+		stream << " oz\n";
 	}
-	result += "\nPrice: $: ";
-	result += price;
-	result += "\n";
+	stream << "Price: $";
+	stream << std::fixed << std::setprecision(2) << price;
+	result += stream.str() + "\n";
 	return result;
 }
 
-int CustomItem::getPrice() {
+double CustomItem::getPrice() {
 	return price;
 }
